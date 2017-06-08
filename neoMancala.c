@@ -27,7 +27,7 @@ int folha(node * r){//retorna 1 se o node analisado eh uma folha
 	return 1;
 }
 
-void insereNode(node * raiz, int * tabuleiro, int pka, int mka){
+void insereNode(node * raiz, int * tabuleiro, int pontosPlayer, int pontosAI){
 	if(raiz == NULL)
 		raiz = criaNode();
 	raiz->pontosPlayer = pontosPlayer;
@@ -114,7 +114,7 @@ void imprimeTabuleiro(node * raiz){
 		if(i == 6){
 			printf("\n%d\t\t\t\t\t\t%d\n",raiz->pontosAI, raiz->pontosPlayer);
 		}	
-		printf("/t%s\n", raiz->tabuleiro[i]);
+		printf("\t%d\n", raiz->tabuleiro[i]);
 	}
 	printf("\n");
 }
