@@ -92,8 +92,22 @@ int altura(node * r){
     return d;
 }
 
-int escolheDificuldade(){// o valor retornado eh a altura da arvore
-	int dif;
+
+int copiaDados(node * r1, node * r2){// r1 eh o original e r2 eh o destino da copia
+	if(r1 == r2)
+		printf("Mesmo node\n");
+	else if(r1 == NULL)
+		r2 = NULL;
+	else{
+		r2->pontosAI = r1->pontosAI;
+		r2->pontosPlayer = r1->pontosPlayer;
+		for(int i = 0; i < 12; ++i)
+			r2->tabuleiro[i] = r1->tabuleiro[i];
+	}
+}
+
+int dif = 0;
+int escolheDificuldade(){// o valor retornado eh a altura da arvore - 1
 	printf("Qual a dificuldade?\n");
 	printf("1 - Facil\n");
 	printf("2 - Medio\n");
@@ -119,12 +133,38 @@ void imprimeTabuleiro(node * raiz){
 	printf("\n");
 }
 
-int calculaJogada(int jogador, int opcao, node * raiz){
+int jogador = 0;
+int vez(){
+	if(!jogador){
+		printf("Deseja jogar primeiro? s/n\n");
+		char ch;
+		scanf("%c", &ch);
+		switch(ch){
+			case 's':
+				jogador = 1;
+				return 2;
+			default:
+				jogador = 1;
+				return 1;
+		}
+	}else{
+		if(jogador == 2){
+			jogador = 1;
+			return 1;
+		}
+		else{
+			jogador = 2;
+			return 2;
+		}
+	}
+}
+
+int calculaJogada(int vez, int opcao, node * raiz){// modifica um tabuleiro ja criado
 	int i = opcao+1;
 	int d = 0;
-	if(opcao == 5)// antes do pontosAI
+	if(opcao == 5 && vez == 1)// antes do pontosAI
 		d = 1;
-	else if(opcao == 11)// antes do pontosPlayer
+	else if(opcao == 11 && vez == 2)// antes do pontosPlayer
 		d = 2;
 	while(raiz->tabuleiro[opcao] != 0){
 		if(i == 12)//reseta a contagem das casas
@@ -138,9 +178,9 @@ int calculaJogada(int jogador, int opcao, node * raiz){
 			d = 0;
 		}else{// caso tabuleiro
 			raiz->tabuleiro[i]++;
-			if(i == 5)// antes do pontosAI
+			if(opcao == 5 && vez == 1)// antes do pontosAI
 				d = 1;
-			else if(i == 11)// antes do pontosPlayer
+			else if(opcao == 11 && vez == 2)// antes do pontosPlayer
 				d = 2;
 			i++;// esse incremento fica aqui dentro pois, do contario, as casas 0 e 7 nunca seiam alcancadas
 		}
@@ -148,9 +188,9 @@ int calculaJogada(int jogador, int opcao, node * raiz){
 }
 
 int valorJogada(node * raiz){// retorna uma quantificacao do quao valiosa eh uma jogada
-	int soma = 0, i;
+	int soma = 0;
 	int valorAI = 0, ValorPlayer = 0;// estas armazenam quantas casas vazias existem
-	for(i = 0; i < 12; i++){// varre o tabuleiro e somando o total de cada tabuleiro
+	for(int i = 0; i < 12; i++){// varre o tabuleiro e somando o total de cada tabuleiro
 		if(i <= 5){
 			soma += raiz->tabuleiro[i];
 			valorAI++;
@@ -168,4 +208,41 @@ int valorJogada(node * raiz){// retorna uma quantificacao do quao valiosa eh uma
 	if (ValorPlayer == 0)
 		soma += 100;
 	return soma;
+}
+
+int somaFolhas(node * r){
+	if(r == NULL){
+		return 0;
+	int soma = 0;
+	for (int i = 0; i < 6; ++i)
+		soma += valorJogada(r->opcao[i]);
+	return soma + valorJogada(r);
+	}
+}
+
+void criaFolhas(node * r, int d){
+	if(d < dif){
+		for(int i = 0; i < 6; ++i){
+			if(r->opcao[i] == NULL)
+				r->opcao[i] = criaNode();
+			copiaDados(r, r->opcao[i]);
+			calculaJogada(vez(), i, r->opcao[i]);
+		}
+	}
+}
+
+
+int rafik(node * raiz){
+	raiz = criaNode();
+	raiz->pontosAI = 0;
+	raiz->pontosPlayer = 0;
+	for(int i = 0; i < 12; ++i){
+		raiz->tabuleiro[i] = 6;
+	}
+	int dif = escolheDificuldade();
+	vez();
+	imprimeTabuleiro(raiz);
+	node * r = criaNode();
+	copiaDados(raiz, r);
+	criaFolhas(r, 0);
 }
