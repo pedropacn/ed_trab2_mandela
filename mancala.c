@@ -222,7 +222,7 @@ int calculaJogada(int player, int opcao, int * ptab, int * mtab, int * pka, int 
 			}
 		}
 	}
-	else{//player jogador
+	else{//player computador
 		if(((opcao + ptab[opcao]) % 7 == 0) && ((opcao + ptab[opcao]) % 2 == 1)){//jogada extra
 			d = 1;
 		}
