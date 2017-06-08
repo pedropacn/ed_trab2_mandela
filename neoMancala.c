@@ -38,14 +38,18 @@ void insereNode(node * raiz, int * tabuleiro, int pontosPlayer, int pontosAI){
 	}
 }
 
-void resultado(int d, int pontosAI, int pontosPlayer){
-	printf("Jogador: %d\tComputador: %d\n", pontosPlayer, pontosAI);
-	if(d == 3)
-		printf("Empate!\n");
-	else if(d == 1)
-		printf("Vitoria do jogador!\n");
-	else
-		printf("Vitoria do computador!\n");
+int resultado(int d, int pontosAI, int pontosPlayer){
+	if(d){
+		printf("Jogador: %d\tComputador: %d\n", pontosPlayer, pontosAI);
+		if(d == 3)
+			printf("Empate!\n");
+		else if(d == 1)
+			printf("Vitoria do jogador!\n");
+		else
+			printf("Vitoria do computador!\n");
+		return 1;
+	}
+	return 0;
 }
 
 int vitoria(node * raiz){
@@ -66,16 +70,16 @@ int vitoria(node * raiz){
 	return 2;// vitoria computador
 }
 
-int jogada(){// interface para o player fazer sua jogada
+int jogada(int * tabuleiro){// interface para o player fazer sua jogada
 	int d;
 	printf("escolha uma casa para jogar: ");
 	scanf("%d", &d);
-	while(d < 1 || d > 6){
+	while((d < 1 || d > 6) || (tabuleiro[d+5] == 0)){
 		printf("casa invalida\n");
 		printf("escolha uma casa para jogar: ");
 		scanf("%d", &d);
 	}
-	return d;
+	return d+5;
 }
 
 int altura(node * r){
@@ -141,7 +145,7 @@ int vez(){
 		scanf("%c", &ch);
 		switch(ch){
 			case 's':
-				jogador = 1;
+				jogador = 2;// apenas para jogador se tornar true e nao entrar na condicao anterior
 				return 2;
 			default:
 				jogador = 1;
@@ -151,33 +155,37 @@ int vez(){
 		if(jogador == 2){
 			jogador = 1;
 			return 1;
-		}
-		else{
+		}else{
 			jogador = 2;
 			return 2;
 		}
 	}
 }
 
-int calculaJogada(int vez, int opcao, node * raiz){// modifica um tabuleiro ja criado
+node * calculaJogada(int vez, int opcao, node * raiz){// modifica um tabuleiro ja criado
 	int i = opcao+1;
 	int d = 0;
+	node * temp = raiz->opcao[0];
+	if(temp == NULL){
+		temp = criaNode();
+	}
+	copiaDados(raiz, temp);
 	if(opcao == 5 && vez == 1)// antes do pontosAI
 		d = 1;
 	else if(opcao == 11 && vez == 2)// antes do pontosPlayer
 		d = 2;
-	while(raiz->tabuleiro[opcao] != 0){
+	while(temp->tabuleiro[opcao] != 0){
 		if(i == 12)//reseta a contagem das casas
 			i = 0;
-		raiz->tabuleiro[opcao]--;
+		temp->tabuleiro[opcao]--;
 		if(d == 1){// caso pontosAI
-			raiz->pontosAI++;
+			temp->pontosAI++;
 			d = 0;
 		}else if(d == 2){//  caso pontosPlayer
-			raiz->pontosPlayer++;
+			temp->pontosPlayer++;
 			d = 0;
 		}else{// caso tabuleiro
-			raiz->tabuleiro[i]++;
+			temp->tabuleiro[i]++;
 			if(opcao == 5 && vez == 1)// antes do pontosAI
 				d = 1;
 			else if(opcao == 11 && vez == 2)// antes do pontosPlayer
@@ -185,6 +193,7 @@ int calculaJogada(int vez, int opcao, node * raiz){// modifica um tabuleiro ja c
 			i++;// esse incremento fica aqui dentro pois, do contario, as casas 0 e 7 nunca seiam alcancadas
 		}
 	}
+	return temp;
 }
 
 int valorJogada(node * raiz){// retorna uma quantificacao do quao valiosa eh uma jogada
@@ -220,13 +229,14 @@ int somaFolhas(node * r){
 	}
 }
 
-void criaFolhas(node * r, int d){
+void criaFolhas(node * r, int d){//ta gastando muito
 	if(d < dif){
 		for(int i = 0; i < 6; ++i){
 			if(r->opcao[i] == NULL)
 				r->opcao[i] = criaNode();
 			copiaDados(r, r->opcao[i]);
 			calculaJogada(vez(), i, r->opcao[i]);
+			criaFolhas(r->opcao[i], d++);
 		}
 	}
 }
@@ -234,15 +244,41 @@ void criaFolhas(node * r, int d){
 
 int rafik(node * raiz){
 	raiz = criaNode();
-	raiz->pontosAI = 0;
-	raiz->pontosPlayer = 0;
+	node * raizAtual = raiz;//raizAtual serve para mexer na arvore principal (lista) sem comprometer o accesso ao inicio
+	raizAtual->pontosAI = 0;
+	raizAtual->pontosPlayer = 0;
 	for(int i = 0; i < 12; ++i){
-		raiz->tabuleiro[i] = 6;
+		raizAtual->tabuleiro[i] = 6;
 	}
 	int dif = escolheDificuldade();
 	vez();
-	imprimeTabuleiro(raiz);
+	imprimeTabuleiro(raizAtual);
 	node * r = criaNode();
-	copiaDados(raiz, r);
+
+	while(int a = 1){
+		if (jogador == 1){
+			vezDoAI
+		}else if(jogador == 2){
+			vezDoPlayer
+		}
+	}
+}
+
+int vezDoAI(node * raizAtual, node * r){
+	int maior = -1000, temp, d;
+	copiaDados(raizAtual, r);
 	criaFolhas(r, 0);
+	for (int i = 0; i < 6; ++i){//analise das opcoes e selecao da jogada
+		if(maior < somaFolhas(r->opcao[i])){
+			maior = somaFolhas(r->opcao[i]);
+			d = i;
+		}
+	}
+	raizAtual = calculaJogada(jogador, d, raizAtual);
+	return resultado(vitoria(raizAtual), raizAtual->pontosAI, raizAtual->pontosPlayer);
+}
+
+int vezDoPlayer(node * raizAtual){
+	raizAtual = calculaJogada(jogador, jogada(raizAtual), raizAtual);
+	return resultado(vitoria(raizAtual), raizAtual->pontosAI, raizAtual->pontosPlayer);
 }
