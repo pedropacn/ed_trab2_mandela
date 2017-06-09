@@ -82,27 +82,19 @@ int jogada(int * tabuleiro){// interface para o player fazer sua jogada
 	return d+5;
 }
 
-int altura(node * r){
-	int hopcao[6], i, d = -1000, h;
-    if (r == NULL)
-        return 1;
-    for(i = 0; i < 6; i++){
-    	hopcao[i] = altura(r->opcao[i]);
-    }
-    for (i = 0; i < 6; ++i){
-    	if(hopcao[i] > d)
-    		d = hopcao[i];
-    }
-    return d;
-}
-
-
 int copiaDados(node * r1, node * r2){// r1 eh o original e r2 eh o destino da copia
-	if(r1 == r2)
+	if(r2 == NULL){
+		printf("destino NULL \n");
+	}
+	if(r1 == r2){
 		printf("Mesmo node\n");
-	else if(r1 == NULL)
+	}
+	else if(r1 == NULL){
+		printf("CHEGUEI AQUI\n");
 		r2 = NULL;
+	}
 	else{
+		printf("CHEGUEI AQUI %d\n", r1->pontosAI);
 		r2->pontosAI = r1->pontosAI;
 		r2->pontosPlayer = r1->pontosPlayer;
 		for(int i = 0; i < 12; ++i)
@@ -116,8 +108,9 @@ int escolheDificuldade(){// o valor retornado eh a altura da arvore - 1
 	printf("1 - Facil\n");
 	printf("2 - Medio\n");
 	printf("3 - Dificil\n");
-	scanf("%d", &dif);
-	switch(dif){
+	int d;
+	scanf("%d", &d);
+	switch(d){
 		case 1:
 			return 2;
 		case 2:
@@ -139,37 +132,34 @@ void imprimeTabuleiro(node * raiz){
 
 int jogador = 0;
 int vez(){
-	if(!jogador){
-	printf("Deseja jogar primeiro? s/n\n");
-		char ch;
+	if(!jogador){// selecao  de primeiro jogador
+		getchar();
+		printf("Deseja jogar primeiro? s/n\n");
+		char ch = 97;
 		scanf("%c", &ch);
-		if(ch == 's'){
-			jogador = 2;// apenas para jogador se tornar true e nao entrar na condicao anterior
-			return 2;
-		}
-		else{
-			jogador = 1;
-			return 1;
-		}
-	}else{
-		if(jogador == 2){
-			jogador = 1;
-			return 1;
-		}else{
+		if(ch == 's')
 			jogador = 2;
-			return 2;
-		}
+		else
+			jogador = 1;
+	}else{// alterna entre os estados de jogador
+		if(jogador == 2)
+			jogador = 1;
+		else
+			jogador = 2;
 	}
 }
 int bonus = 0;
 node * calculaJogada(int vez, int opcao, node * raiz){// modifica um tabuleiro ja criado
 	int i = opcao+1;
 	int d = 0;
-	node * temp = raiz->opcao[0];
-	if(temp == NULL){
-		temp = criaNode();
+	node * temp = criaNode();
+	temp = raiz->opcao[0];
+	copiaDados(raiz, temp);//problema
+	printf("CHEGUEI AQUI\n");
+	if(vez == 2){
+		opcao--;
+		i--;
 	}
-	copiaDados(raiz, temp);
 	if(opcao == 5 && vez == 1)// antes do pontosAI
 		d = 1;
 	else if(opcao == 11 && vez == 2)// antes do pontosPlayer
@@ -231,15 +221,20 @@ int somaFolhas(node * r){
 	return soma + valorJogada(r);
 	}
 }
-
+int count = 1
 void criaFolhas(node * r, int d){//ta gastando muito
+	printf("criaFolhas d=%d dif=%d\n", d, dif);
 	if(d < dif){
 		for(int i = 0; i < 6; ++i){
-			if(r->opcao[i] == NULL)
+			if(r->opcao[i] == NULL){
 				r->opcao[i] = criaNode();
+			}
 			copiaDados(r, r->opcao[i]);
-			calculaJogada(vez(), i, r->opcao[i]);
-			criaFolhas(r->opcao[i], d++);
+			count++;
+			printf("copiaDados %d\n", count);
+			calculaJogada(vez(), i, r->opcao[i]);//problema
+			printf("CHEGUEI AQUI\n");
+			criaFolhas(r->opcao[i], d+1);
 		}
 	}
 }
@@ -247,7 +242,9 @@ void criaFolhas(node * r, int d){//ta gastando muito
 int vezDoAI(node * raizAtual, node * r){
 	int maior = -1000, temp, d;
 	copiaDados(raizAtual, r);
-	criaFolhas(r, 0);
+	printf("primeiro copia dados passou\n");
+	criaFolhas(r, 0);//problema
+	printf("CHEGUEI AQUI\n");
 	for (int i = 0; i < 6; ++i){//analise das opcoes e selecao da jogada
 		if(maior < somaFolhas(r->opcao[i])){
 			maior = somaFolhas(r->opcao[i]);
@@ -269,18 +266,18 @@ int rafik(node * raiz){
 	raizAtual->pontosAI = 0;
 	raizAtual->pontosPlayer = 0;
 	for(int i = 0; i < 12; ++i){
-		raizAtual->tabuleiro[i] = 6;
+		raizAtual->tabuleiro[i] = 4;
 	}
-	int dif = escolheDificuldade();
+	dif = escolheDificuldade();
 	vez();// player escolhe se joga primeiro ou nao
 	imprimeTabuleiro(raizAtual);
 	node * r = criaNode();
-
 	int a = 1;
 	while(a){//loop infinito
 		if (jogador == 1){
-			if(vezDoAI(raizAtual, r))
+			if(vezDoAI(raizAtual, r))//problema
 				break;
+		printf("CHEGUEI AQUI nao chegou\n");
 		}else if(jogador == 2){
 			if(vezDoPlayer(raizAtual))
 				break;
