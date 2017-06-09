@@ -130,9 +130,9 @@ int escolheDificuldade(){// o valor retornado eh a altura da arvore - 1
 void imprimeTabuleiro(node * raiz){
 	for (int i = 0; i < 12; ++i){
 		if(i == 6){
-			printf("\n%d\t\t\t\t\t\t%d\n",raiz->pontosAI, raiz->pontosPlayer);
+			printf("\n%d\t\t\t\t\t\t\t%d\n",raiz->pontosAI, raiz->pontosPlayer);
 		}	
-		printf("\t%d\n", raiz->tabuleiro[i]);
+		printf("\t%d", raiz->tabuleiro[i]);
 	}
 	printf("\n");
 }
@@ -140,16 +140,16 @@ void imprimeTabuleiro(node * raiz){
 int jogador = 0;
 int vez(){
 	if(!jogador){
-		printf("Deseja jogar primeiro? s/n\n");
+	printf("Deseja jogar primeiro? s/n\n");
 		char ch;
 		scanf("%c", &ch);
-		switch(ch){
-			case 's':
-				jogador = 2;// apenas para jogador se tornar true e nao entrar na condicao anterior
-				return 2;
-			default:
-				jogador = 1;
-				return 1;
+		if(ch == 's'){
+			jogador = 2;// apenas para jogador se tornar true e nao entrar na condicao anterior
+			return 2;
+		}
+		else{
+			jogador = 1;
+			return 1;
 		}
 	}else{
 		if(jogador == 2){
@@ -161,7 +161,7 @@ int vez(){
 		}
 	}
 }
-
+int bonus = 0;
 node * calculaJogada(int vez, int opcao, node * raiz){// modifica um tabuleiro ja criado
 	int i = opcao+1;
 	int d = 0;
@@ -180,11 +180,14 @@ node * calculaJogada(int vez, int opcao, node * raiz){// modifica um tabuleiro j
 		temp->tabuleiro[opcao]--;
 		if(d == 1){// caso pontosAI
 			temp->pontosAI++;
+			bonus = 1;
 			d = 0;
 		}else if(d == 2){//  caso pontosPlayer
 			temp->pontosPlayer++;
+			bonus = 2;
 			d = 0;
 		}else{// caso tabuleiro
+			bonus = 0;
 			temp->tabuleiro[i]++;
 			if(opcao == 5 && vez == 1)// antes do pontosAI
 				d = 1;
@@ -241,29 +244,6 @@ void criaFolhas(node * r, int d){//ta gastando muito
 	}
 }
 
-
-int rafik(node * raiz){
-	raiz = criaNode();
-	node * raizAtual = raiz;//raizAtual serve para mexer na arvore principal (lista) sem comprometer o accesso ao inicio
-	raizAtual->pontosAI = 0;
-	raizAtual->pontosPlayer = 0;
-	for(int i = 0; i < 12; ++i){
-		raizAtual->tabuleiro[i] = 6;
-	}
-	int dif = escolheDificuldade();
-	vez();
-	imprimeTabuleiro(raizAtual);
-	node * r = criaNode();
-
-	while(int a = 1){
-		if (jogador == 1){
-			vezDoAI
-		}else if(jogador == 2){
-			vezDoPlayer
-		}
-	}
-}
-
 int vezDoAI(node * raizAtual, node * r){
 	int maior = -1000, temp, d;
 	copiaDados(raizAtual, r);
@@ -279,6 +259,40 @@ int vezDoAI(node * raizAtual, node * r){
 }
 
 int vezDoPlayer(node * raizAtual){
-	raizAtual = calculaJogada(jogador, jogada(raizAtual), raizAtual);
+	raizAtual = calculaJogada(jogador, jogada(raizAtual->tabuleiro), raizAtual);
 	return resultado(vitoria(raizAtual), raizAtual->pontosAI, raizAtual->pontosPlayer);
+}
+
+int rafik(node * raiz){
+	raiz = criaNode();
+	node * raizAtual = raiz;//raizAtual serve para mexer na arvore principal (lista) sem comprometer o accesso ao inicio
+	raizAtual->pontosAI = 0;
+	raizAtual->pontosPlayer = 0;
+	for(int i = 0; i < 12; ++i){
+		raizAtual->tabuleiro[i] = 6;
+	}
+	int dif = escolheDificuldade();
+	vez();// player escolhe se joga primeiro ou nao
+	imprimeTabuleiro(raizAtual);
+	node * r = criaNode();
+
+	int a = 1;
+	while(a){//loop infinito
+		if (jogador == 1){
+			if(vezDoAI(raizAtual, r))
+				break;
+		}else if(jogador == 2){
+			if(vezDoPlayer(raizAtual))
+				break;
+		}
+		if(!bonus)// condicao da jogada bonus
+			vez();
+	}
+}
+
+int main()
+{
+	node * raiz = criaNode();
+	rafik(raiz);
+	return 0;
 }
