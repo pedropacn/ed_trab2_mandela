@@ -9,16 +9,18 @@ typedef struct no{
 }node;
 
 node * criaNode(){
+    int i;
 	node * raiz = (node *)malloc(sizeof(node));
-	for (int i = 0; i < 6; ++i)
+	for (i = 0; i < 6; i++)
 		raiz->opcao[i] = NULL;
 	return raiz;
 }
 
 int folha(node * r){//retorna 1 se o node analisado eh uma folha
-	if(r == NULL)
+    if(r == NULL)
 		return 0;
-	for (int i = 0; i < 6; ++i)
+	int i;
+	for (i = 0; i < 6; ++i)
 	{
 		if(r->opcao[i] != NULL){
 			return 0;
@@ -32,7 +34,8 @@ void insereNode(node * raiz, int * tabuleiro, int pontosPlayer, int pontosAI){
 		raiz = criaNode();
 	raiz->pontosPlayer = pontosPlayer;
 	raiz->pontosAI = pontosAI;
-	for (int i = 0; i < 12; ++i)
+    int i;
+	for (i = 0; i < 12; ++i)
 	{
 		raiz->tabuleiro[i] = tabuleiro[i];
 	}
@@ -53,13 +56,14 @@ int resultado(int d, int pontosAI, int pontosPlayer){
 }
 
 int vitoria(node * raiz){
-	for (int i = 0; i < 6; ++i){// verifica se algum tabuleiro esta vazio
+    int i;
+	for (i = 0; i < 6; ++i){// verifica se algum tabuleiro esta vazio
 		if (raiz->tabuleiro[i] != 0)
 			return 0;
 		if (raiz->tabuleiro[6+i] != 0)
 			return 0;
 	}//se chegou aqui, ja ocorreu game over
-	for (int i = 0; i < 6; ++i){
+	for (i = 0; i < 6; ++i){
 		raiz->pontosAI += raiz->tabuleiro[i];
 		raiz->pontosPlayer += raiz->tabuleiro[6+i];
 	}
@@ -83,6 +87,7 @@ int jogada(int * tabuleiro){// interface para o player fazer sua jogada
 }
 
 int copiaDados(node * r1, node * r2){// r1 eh o original e r2 eh o destino da copia
+    int i;
 	if(r2 == NULL){
 		printf("destino NULL \n");
 	}
@@ -97,7 +102,7 @@ int copiaDados(node * r1, node * r2){// r1 eh o original e r2 eh o destino da co
 		printf("CHEGUEI AQUI %d\n", r1->pontosAI);
 		r2->pontosAI = r1->pontosAI;
 		r2->pontosPlayer = r1->pontosPlayer;
-		for(int i = 0; i < 12; ++i)
+		for(i = 0; i < 12; ++i)
 			r2->tabuleiro[i] = r1->tabuleiro[i];
 	}
 }
@@ -121,7 +126,8 @@ int escolheDificuldade(){// o valor retornado eh a altura da arvore - 1
 }
 
 void imprimeTabuleiro(node * raiz){
-	for (int i = 0; i < 12; ++i){
+    int i;
+	for (i = 0; i < 12; ++i){
 		if(i == 6){
 			printf("\n%d\t\t\t\t\t\t\t%d\n",raiz->pontosAI, raiz->pontosPlayer);
 		}	
@@ -190,9 +196,9 @@ node * calculaJogada(int vez, int opcao, node * raiz){// modifica um tabuleiro j
 }
 
 int valorJogada(node * raiz){// retorna uma quantificacao do quao valiosa eh uma jogada
-	int soma = 0;
+	int soma = 0, i;
 	int valorAI = 0, ValorPlayer = 0;// estas armazenam quantas casas vazias existem
-	for(int i = 0; i < 12; i++){// varre o tabuleiro e somando o total de cada tabuleiro
+	for(i = 0; i < 12; i++){// varre o tabuleiro e somando o total de cada tabuleiro
 		if(i <= 5){
 			soma += raiz->tabuleiro[i];
 			valorAI++;
@@ -215,17 +221,18 @@ int valorJogada(node * raiz){// retorna uma quantificacao do quao valiosa eh uma
 int somaFolhas(node * r){
 	if(r == NULL){
 		return 0;
-	int soma = 0;
-	for (int i = 0; i < 6; ++i)
+	int soma = 0, i;
+	for (i = 0; i < 6; ++i)
 		soma += valorJogada(r->opcao[i]);
 	return soma + valorJogada(r);
 	}
 }
-int count = 1
+int count = 1;
 void criaFolhas(node * r, int d){//ta gastando muito
-	printf("criaFolhas d=%d dif=%d\n", d, dif);
+	int i;
+    printf("criaFolhas d=%d dif=%d\n", d, dif);
 	if(d < dif){
-		for(int i = 0; i < 6; ++i){
+		for(i = 0; i < 6; ++i){
 			if(r->opcao[i] == NULL){
 				r->opcao[i] = criaNode();
 			}
@@ -240,12 +247,12 @@ void criaFolhas(node * r, int d){//ta gastando muito
 }
 
 int vezDoAI(node * raizAtual, node * r){
-	int maior = -1000, temp, d;
+	int maior = -1000, temp, d, i;
 	copiaDados(raizAtual, r);
 	printf("primeiro copia dados passou\n");
 	criaFolhas(r, 0);//problema
 	printf("CHEGUEI AQUI\n");
-	for (int i = 0; i < 6; ++i){//analise das opcoes e selecao da jogada
+	for (i = 0; i < 6; ++i){//analise das opcoes e selecao da jogada
 		if(maior < somaFolhas(r->opcao[i])){
 			maior = somaFolhas(r->opcao[i]);
 			d = i;
@@ -261,11 +268,12 @@ int vezDoPlayer(node * raizAtual){
 }
 
 int rafik(node * raiz){
+    int i;
 	raiz = criaNode();
 	node * raizAtual = raiz;//raizAtual serve para mexer na arvore principal (lista) sem comprometer o accesso ao inicio
 	raizAtual->pontosAI = 0;
 	raizAtual->pontosPlayer = 0;
-	for(int i = 0; i < 12; ++i){
+	for(i = 0; i < 12; ++i){
 		raizAtual->tabuleiro[i] = 4;
 	}
 	dif = escolheDificuldade();
