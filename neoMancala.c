@@ -243,7 +243,10 @@ int valorJogada(node * raiz){// retorna uma quantificacao do quao valiosa eh uma
 	// printf("pontosAI = %d\t pontosPlayer = %d\n", raiz->pontosAI, raiz->pontosPlayer);
 	// printf("soma = %d\n", soma);
 	// printf("fim debug\n");
-	return soma;
+	if(raiz->vez == 2)// essas condições checam de que é a vez.
+		return -soma;
+	else// se a vez é do AI, retorna normal. Do caontrário, retorna o oposto.
+		return soma;
 }
 
 int somaFolhas(node * r){
